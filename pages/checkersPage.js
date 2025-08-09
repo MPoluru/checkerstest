@@ -20,7 +20,7 @@ export class CheckersPage {
 
   let movesMade = 0;
   const movedPieces = new Set();
-  console.log(`🟠 Found ${rows.length} board rows`);
+  console.log(`Found ${rows.length} board rows`);
 
   for (let rowIndex = 7; rowIndex >= 0; rowIndex--) {
     const row = rows[rowIndex];
@@ -34,7 +34,7 @@ export class CheckersPage {
       const pieceId = `${rowIndex}_${colIndex}`;
       if (movedPieces.has(pieceId)) continue; // avoid moving same piece twice
 
-      console.log(`🔸 Orange at row ${rowIndex + 1}, col ${colIndex + 1}`);
+      console.log(`Orange at row ${rowIndex + 1}, col ${colIndex + 1}`);
 
       const fromBox = await cell.boundingBox();
       if (!fromBox) continue;
@@ -56,26 +56,31 @@ export class CheckersPage {
         const toBox = await targetHandle.boundingBox();
         if (!toBox) continue;
 
-        // 🔶 Move: Click orange piece
+        // Click orange piece
         await this.page.mouse.click(
           fromBox.x + fromBox.width / 2,
           fromBox.y + fromBox.height / 2
         );
         await this.page.waitForTimeout(500); // short delay to register selection
 
-        // 🔶 Move: Click target cell
+        // Click target cell
         await this.page.mouse.click(
           toBox.x + toBox.width / 2,
           toBox.y + toBox.height / 2
         );
-        await this.page.waitForTimeout(1200); // wait for AI to respond
 
-        console.log(`✅ Move ${movesMade + 1}: (${rowIndex + 1}, ${colIndex + 1}) → (${rowIndex}, ${targetCol + 1})`);
+        const message = await this.page.locator('#message').textContent();
+        const validMessages = [
+        'Make a move.'
+        ];
+        await this.page.waitForTimeout(1200); 
+
+        console.log(`Move ${movesMade + 1}: (${rowIndex + 1}, ${colIndex + 1}) → (${rowIndex}, ${targetCol + 1})`);
 
         movedPieces.add(pieceId);
         movesMade++;
 
-        // Optional: pause to visually inspect
+        
         // await this.page.pause();
 
         if (movesMade >= 5) {
@@ -88,7 +93,7 @@ export class CheckersPage {
     }
   }
 
-  console.log(`⚠️ Only made ${movesMade} moves. Game may be blocked.`);
+  console.log(`Only made ${movesMade} moves.`);
   return movesMade;
 }
 
@@ -105,10 +110,10 @@ export class CheckersPage {
 
   const match = validMessages.some((text) => message.includes(text));
   if (!match) {
-    throw new Error(`❌ Game did not restart correctly. Got message: "${message}"`);
+    throw new Error(`Game did not restart correctly. Got message: "${message}"`);
   }
 
-  console.log('🔄 Game restarted successfully.');
+  console.log('Game restarted successfully.');
 }
 
 }
